@@ -2,7 +2,7 @@
 
 # tlapser360 - take timelaspe photos at given interval for given number of times.
 
-# Copywrite 2016 - Jason Charcalla
+# Copyright 2016 - Jason Charcalla
 
 # Prereqs: 
 # - GPS support relies on gpsd and gpsd-clients being installed and configured.
@@ -46,7 +46,24 @@ LUX=$(${LUX_METER_SCRIPT})
 #echo "LUX IS ${LUX}"
   
 print_usage() {
-	echo "Usage: $PROGNAME -I <Interval seconds> -C <Image count> -m <Exposure Program mode 1 2 4 9> -G <GPS support 0/1 - This may introduce added latency!> -T <GPS Track log path and file name> -r <image resolution size h/l> -i <iso> -s <shutter speed> -w <White Balance> -O <Output path /> -d <0/1 if images are downloaded delete them from the camera.> -F <Config file - NOT SUPPORTED> -M < 0/1 use a TSL2561 LUX sensor for metering. if used we will add time to your interval > -R <Ramp exposure speed up (longer shutter - Sunset) or down (shorter/faster shutter - Sunrise) based on external LUX meter.> -A <Sunrise time (24hr no : ex, 6:00AM=600)> -P <Sunset time (24hr no ":" ex, 7:00PM=1900)>"
+	echo "Usage: $PROGNAME 
+	-I <Interval seconds> 
+	-C <Image count> 
+	-m <Exposure Program mode 1 2 4 9> 
+	-G <GPS support 0/1 - This may introduce added latency!> 
+	-T <GPS Track log path and file name> 
+	-r <image resolution size h/l> 
+	-i <iso> 
+	-s <shutter speed> 
+	-w <White Balance> 
+	-O <Output path /> 
+	-d <0/1 if images are downloaded delete them from the camera.> 
+	-F <Config file - NOT SUPPORTED> 
+	-M < 0/1 use a TSL2561 LUX sensor for metering. if used we will add time to your interval > 
+	-R <Ramp exposure speed up (longer shutter - Sunset) or down (shorter/faster shutter - Sunrise) based on external LUX meter.> 
+	-A <Sunrise time (24hr no : ex, 6:00AM=600)> -P <Sunset time (24hr no ":" ex, 7:00PM=1900)>
+	
+	"
        echo "ISO and Shutter speed are only needed if Exposure mode is set to 1"                                                               
        exit 1
 }
