@@ -10,9 +10,12 @@
 # - LUX meter support was tested with a adafruit TSL2561 and some tweaks to IainColledge's
 #   example script. See this variable "LUX_METER_SCRIPT"
 #   https://github.com/IainColledge/Adafruit-Raspberry-Pi-Python-Code
+# - Usb support with libptp, Thanks to codetricity for the howto 
+#   http://lists.theta360.guide/t/ricoh-theta-s-api-over-usb-cable/65/3
 
 # Changelog:
 # .1 - ugly script uploaded to github.
+# .2 - added usb support via libptp
 
 
 PROGNAME=$(basename "$0")
@@ -22,8 +25,9 @@ PROGNAME=$(basename "$0")
 #Set some defaults in case they are not specified
 CAMIP=192.168.1.1
 PORT=80
+CONNECTION="W"
 GETIMAGES=0
-RES=l
+RES="l"
 METER=0
 GPS=0
 #METER_GPIO=4
@@ -39,7 +43,6 @@ AMPMDELAY=3000
 AMPMSCALE1=420
 AMPMSCALE2=480
 
-
 # If you have a script for the lux meter, define its location here.
 LUX_METER_SCRIPT="~/Adafruit-Raspberry-Pi-Python-Code-IainColledge/Adafruit_TSL2561/Adafruit_TSL2561_example.py"
 LUX=$(${LUX_METER_SCRIPT})
@@ -48,6 +51,8 @@ LUX=$(${LUX_METER_SCRIPT})
 print_usage() {
 	echo "Usage: $PROGNAME 
 	-I <Interval seconds> 
+	-U Usb mode
+	-W Wifi mode
 	-C <Image count> 
 	-m <Exposure Program mode 1 2 4 9> 
 	-G <GPS support 0/1 - This may introduce added latency!> 
@@ -62,16 +67,17 @@ print_usage() {
 	-M < 0/1 use a TSL2561 LUX sensor for metering. if used we will add time to your interval > 
 	-R <Ramp exposure speed up (longer shutter - Sunset) or down (shorter/faster shutter - Sunrise) based on external LUX meter.> 
 	-A <Sunrise time (24hr no : ex, 6:00AM=600)> -P <Sunset time (24hr no ":" ex, 7:00PM=1900)>
-	
 	"
        echo "ISO and Shutter speed are only needed if Exposure mode is set to 1"                                                               
        exit 1
 }
   
-  while getopts h?I:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
+  while getopts h?I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
       case $arg in
 	I) INTERVAL=$OPTARG
 	ORIGINAL_INTERVAL=$INTERVAL;;
+	W) CONNECTION=W ;;
+	U) CONNECTION=U ;;
 	C) ICOUNT=$OPTARG ;;
 	G) GPS=$OPTARG 
 	TRACKLOG="/dev/null" ;;
@@ -100,11 +106,14 @@ print_usage() {
 
 # somewhere here I would need to parse a config file if I had one
 
-# connect to the camera, retrive the last session id
-echo "Connecting to camera"
-SID=$(curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d '{"name": "camera.startSession"}' | cut -d "\"" -f 14 | cut -d "_" -f2)
+# If were using USB we can skip this step
+if [ "$CONNECTION" == W ]
+then
+	# connect to the camera, retrive the last session id
+	echo "Connecting to camera with WIFI"
+	SID=$(curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d '{"name": "camera.startSession"}' | cut -d "\"" -f 14 | cut -d "_" -f2)
 
-echo "$SID"
+	echo "$SID"
 
 # take photos durring a while loop and wget them in the background.
 JSON_TAKEPIC_REQ=$(< <(cat <<EOF
@@ -116,8 +125,11 @@ JSON_TAKEPIC_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
-#echo $JSON_REQ
-JSON_FILE_REQ="null"
+	#echo $JSON_REQ
+	JSON_FILE_REQ="null"
+else
+	echo "Using direct USB connection"
+fi
 
 # Set the image resolution
 
@@ -130,8 +142,28 @@ else
   RES_HEIGHT=1024
 fi
 
-if [ "$MODE" == 1 ]
+# exposure program mapping
+#if [ "$MODE" -eq 1 ]
+#then
+#	USB_MODE="0x0001"
+#elif [ "$MODE" -eq 2 ]
+#then
+#	USB_MODE="0x0002"
+#elif [ "$MODE" -eq 4 ]
+#then
+#	USB_MODE="0x0004"
+#elif [ "$MODE" -eq 9 ]
+#then
+#	USB_MODE="0x8003"
+#fi
+
+# JSON for wifi or else ptpcam for usb
+if [ "$CONNECTION" == W ]
 then
+
+	if [ "$MODE" == 1 ]
+	then
+
 JSON_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
@@ -152,7 +184,7 @@ JSON_SET_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
-else
+	else
 JSON_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
@@ -170,12 +202,29 @@ JSON_SET_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
+	fi
+	echo "Setting mode via WIFI"
+	# make the actual request to the camera in wifi mode
+	curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_SET_REQ}"
+	# debug
+	echo "$JSON_SET_REQ"
+else
+	echo "Setting mode via USB"
+	# set the mode
+	ptpcam --set-property=0x500e --val=${MODE}
+	# Set the resolution (imagesize)
+	ptpcam --set-property=0x5003 --val="${RES_WIDTH}x${RES_HEIGHT}"	
+	# set the iso if mode != 2 (auto)
+	# Set the white balance if mode !=2 (auto)
+	# Set the shutter speed if mode !=2 (auto) 
+	if [ ${MODE} -ne 2 ]
+       	then
+		ptpcam --set-property=0x500F --val="${ISO}"
+		ptpcam --set-property=0x5005 --val="${WHITE_B}"
+		ptpcam --set-property=0xD00F --val="${SSPEED}"
+	fi
 fi
 
-
-curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_SET_REQ}"
-
-echo "$JSON_SET_REQ"
 
 i=1
 while [ $i -le "$ICOUNT" ]
@@ -578,8 +627,14 @@ do
           LAST_LUX=$LUX
 	  LAST_SSPEED=$SSPEED
 
+    # Wait before setting the exposure and snapping a photo.
+    # Note, you seem to get an error if you try to set the exposure while its still processing.
+    sleep "${INTERVAL}"
+    # set the new exposure
 
-
+    if [ ${CONNECTION} == W ]
+    then
+	    # Set exposure from meter via wifi
 JSON_METER_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
@@ -600,13 +655,25 @@ JSON_METER_SET_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
-    # Wait before setting the exposure and snapping a photo.
-    # Note, you seem to get an error if you try to set the exposure while its still processing.
-    sleep "${INTERVAL}"
-    # set the new exposure
-    echo ${JSON_METER_SET_REQ}
-    curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_METER_SET_REQ}"
-    #echo "$JSON_METER_SET_REQ"
+    	echo ${JSON_METER_SET_REQ}
+	# set the camera propertis via wifi
+    	curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_METER_SET_REQ}"
+    	#echo "$JSON_METER_SET_REQ"
+    else
+	#set the camea properties via usb
+        ptpcam --set-property=0x500e --val=${MODE}
+        # Set the resolution (imagesize)
+        ptpcam --set-property=0x5003 --val="${RES_WIDTH}x${RES_HEIGHT}"
+        # set the iso 
+        ptpcam --set-property=0x500F --val="${ISO}"
+        # Set the white balance 
+        ptpcam --set-property=0x5005 --val="${WHITE_B}"
+        # Set the shutter speed 
+        ptpcam --set-property=0xD00F --val="${SSPEED}"
+    fi
+
+
+
     # If we set it to use a photo resistor circuiut "METER"  add time to the interval length accordingly. This prevents us from trying to take
     # the next picture durring an ongoing exposure, which causes an error.
     INTERVAL=$(echo $SSPEED + $ORIGINAL_INTERVAL | bc)
@@ -654,6 +721,9 @@ EOF
 	    	    GPS_ALT=$(echo "$GPS_DATA" | cut -d"," -f4 | cut -d":" -f2,3,4 | cut -d"T" -f2)
 	    	    # Write GPS info to the camera.
 
+
+		        if [ ${CONNECTION} == W ]
+		        then
 JSON_GPS_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
@@ -672,9 +742,14 @@ JSON_GPS_SET_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
-	   	    # Set the values on the camera
-		    echo ${JSON_GPS_SET_REQ}
-	   	    curl -s -X POST -d "${JSON_GPS_SET_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+	   	    		# Set the gps values on the camera via wifi
+		    		echo ${JSON_GPS_SET_REQ}
+	   	    		curl -s -X POST -d "${JSON_GPS_SET_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+		    	else
+				# Set the gps via usb
+				ptpcam --set-property=0xD801 --val="${GPS_LAT},${GPS_LON},${GPS_ALT}m@${GPS_DATE}${GPS_TIME}Z,WGS84"
+			fi
+
 	    else
 		    echo "GPS enabled but now location found."
 	    fi
@@ -686,7 +761,21 @@ EOF
     ####
     #### This is where we take the actual picture
     ####
-    curl -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+    if [ ${CONNECTION} == W ]
+    then
+	 # take picture over wifi
+	 curl -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+    else
+	 # take picture over usb
+	 ptpcam -c
+    fi
+
+    # Decide if we are going to retrive and delete photos from the cam
+    # this will vary greatly from wifi to USB
+    #
+ if [ ${CONNECTION} == W ]
+ then
+ # WIFI image retrival/deletion	 
     #curl -v -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d '{"name": "camera.takePicture", "parameters": {"sessionId": "SID_$SID"}}'
     # Retrive the file name, but lets wait a couple iterations.
     if [ $i -eq 2 ]
@@ -780,6 +869,20 @@ EOF
 	fi
        
     fi
+  else
+  # USB image retreval and deleteion
+  echo "retriving image via usb not supported yet"
+  # On the 1st pass get the last image name/hex ID
+
+  # Increment hex id
+
+  # if $GETIMAGES -eq 1 then lets download the image
+  # ptpcam --get-file=0x006906cc
+
+  # if $DELIMG -eq 1 then lets delete the image
+  # ptpcam --delete-object=0x006906cc
+  fi
+
 # Get the file
 #	if [ $FILENAME0 != f ]
 #	then
@@ -790,7 +893,9 @@ EOF
 
 done
 
-#close session
+#close session (only for wifi mode)
+if [ ${CONNECTION} == W ]
+  then
 JSON_CLOSE_REQ=$(< <(cat <<EOF
 {
   "name": "camera.closeSession",
@@ -800,6 +905,7 @@ JSON_CLOSE_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
-curl -s -X POST -d "${JSON_CLOSE_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+	curl -s -X POST -d "${JSON_CLOSE_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+fi
 
-exit
+exit 0
