@@ -10,7 +10,7 @@
 # - LUX meter support was tested with a adafruit TSL2561 and some tweaks to IainColledge's
 #   example script. See this variable "LUX_METER_SCRIPT"
 #   https://github.com/IainColledge/Adafruit-Raspberry-Pi-Python-Code
-# - Usb support with libptp, Thanks to codetricity for the howto 
+# - Theta s Usb support with libptp, Thanks to codetricity for the howto 
 #   http://lists.theta360.guide/t/ricoh-theta-s-api-over-usb-cable/65/3
 
 # Changelog:
@@ -45,13 +45,13 @@ AMPMSCALE2=480
 
 # If you have a script for the lux meter, define its location here.
 LUX_METER_SCRIPT="~/Adafruit-Raspberry-Pi-Python-Code-IainColledge/Adafruit_TSL2561/Adafruit_TSL2561_example.py"
-LUX=$(${LUX_METER_SCRIPT})
+#LUX=$(${LUX_METER_SCRIPT})
 #echo "LUX IS ${LUX}"
   
 print_usage() {
 	echo "Usage: $PROGNAME 
 	-I <Interval seconds> 
-	-U Usb mode
+	-U Usb mode for theta s
 	-W Wifi mode
 	-C <Image count> 
 	-m <Exposure Program mode 1 2 4 9> 
@@ -873,14 +873,27 @@ EOF
   # USB image retreval and deleteion
   echo "retriving image via usb not supported yet"
   # On the 1st pass get the last image name/hex ID
-
-  # Increment hex id
+  if [ $i -eq 1 ]
+  then
+    FILEHEX=$(ptpcam -L | tail -n -1 | cut -d ":" -f1)
+  fi
+  # Increment hex id, in effort to not waste time will will calculate the id
+  if [ $i -ge 1 ]
+  then
+    FILEHEX=$(printf "0x%08x\n" $(( ${FILEHEX} + 1 )))
+  fi
 
   # if $GETIMAGES -eq 1 then lets download the image
-  # ptpcam --get-file=0x006906cc
-
-  # if $DELIMG -eq 1 then lets delete the image
-  # ptpcam --delete-object=0x006906cc
+  if [ $GETIMAGES -eq 1 ]
+  then
+	  ptpcam --get-file=${FILEHEX}
+ 	  if [ $GETIMAGES -eq 1 ]
+          then
+	  # if $DELIMG -eq 1 then lets delete the image
+    	  	ptpcam --delete-object=${FILEHEX}
+	  fi
+	  
+  fi
   fi
 
 # Get the file

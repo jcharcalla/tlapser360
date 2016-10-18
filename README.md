@@ -20,7 +20,7 @@ Prereqs:
   example script. See this variable "LUX_METER_SCRIPT"
   https://github.com/IainColledge/Adafruit-Raspberry-Pi-Python-Code
 
-- Usb support with libptp, Thanks to codetricity for the howto 
+- Theta s Usb support with libptp, Thanks to codetricity for the howto 
   http://lists.theta360.guide/t/ricoh-theta-s-api-over-usb-cable/65/3
 
 
@@ -29,7 +29,7 @@ Usage:
 
 -I <Interval seconds> 
 
--U Usb mode
+-U Usb mode for theta s 
 
 -W Wifi mode
 
