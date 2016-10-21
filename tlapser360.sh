@@ -132,7 +132,7 @@ else
     # The 1st hex intiger in this case is always a 10, or a
     SSPEED_HEX2="\x01\x00\x00\x00"
 fi
-echo -e -n '${SSPEED_HEX1}${SSPEED_HEX2}' > /dev/shm/ss_hex_tmp.bin
+echo -e -n "${SSPEED_HEX1}${SSPEED_HEX2}" > /dev/shm/ss_hex_tmp.bin
 }
 # somewhere here I would need to parse a config file if I had one
 
