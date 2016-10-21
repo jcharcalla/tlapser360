@@ -35,10 +35,10 @@ Usage:
 - -G <0/1> GPS metadata injection. This relies on GPSD being installed and properly configured. It may also introduce latency so adjust your interval accordingly.
 - -T <GPS Track log path and file name> Write a gps track log, relies on GPSD.
 - -r <image resolution size h/l> Set the resolution of the image. I may depricate this and use -K.
-- -i <iso> 
+- -i <iso> Camera iso ex. 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600 
 - -s <shutter speed> 
 - -w <White Balance> 
-- -O <Output path /> 
+- -O <Output path /> Path to where you would like output image files.
 - -d <0/1 if images are downloaded delete them from the camera.> 
 - -F <Config file - NOT SUPPORTED> 
 - -M < 0/1 use a TSL2561 LUX sensor for metering. if used we will add time to your interval > 
