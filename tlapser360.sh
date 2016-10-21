@@ -221,7 +221,9 @@ else
        	then
 		ptpcam --set-property=0x500F --val="${ISO}"
 		ptpcam --set-property=0x5005 --val="${WHITE_B}"
-		ptpcam --set-property=0xD00F --val="${SSPEED}"
+		ss_convert
+		ptpcam -R 0x1016,0xd00f,0,0,0,0,/dev/shm/ss_hex_tmp.bin
+		#ptpcam --set-property=0xD00F --val="${SSPEED}"
 	fi
 fi
 
@@ -633,7 +635,7 @@ do
     # set the new exposure
 
     # Function to convert decimal shutter speed to hex for ptpcam raw
-function ss_convert {
+    ss_convert () {
      if (( $(echo "${SSPEED} < 1" | bc -l) ))
      then 
           # If the shutter speed is less than 1 we do it this way (looks something like 1/60)
@@ -659,6 +661,7 @@ function ss_convert {
           # The 1st hex intiger in this case is always a 10, or a
           SSPEED_HEX2="\x01\x00\x00\x00"
      fi
+     echo -e -n '${SSPEED_HEX1}${SSPEED_HEX2}' > /dev/shm/ss_hex_tmp.bin
 }
 
     if [ ${CONNECTION} == W ]
@@ -698,7 +701,9 @@ EOF
         # Set the white balance 
         ptpcam --set-property=0x5005 --val="${WHITE_B}"
         # Set the shutter speed 
-        ptpcam --set-property=0xD00F --val="${SSPEED}"
+	ss_convert
+	ptpcam -R 0x1016,0xd00f,0,0,0,0,/dev/shm/ss_hex_tmp.bin
+        #ptpcam --set-property=0xD00F --val="${SSPEED}"
     fi
 
 

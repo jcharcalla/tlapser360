@@ -5,7 +5,7 @@
 
 SSPEED=$1
 
-function ss_convert {  
+ss_convert () {  
      if (( $(echo "${SSPEED} < 1" | bc -l) ))
      then
           # If the shutter speed is less than 1 we do it this way (looks something like 1/60)
