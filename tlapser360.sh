@@ -632,6 +632,32 @@ do
     sleep "${INTERVAL}"
     # set the new exposure
 
+    # Function to convert decimal shutter speed to hex for ptpcam raw
+    function ss_convert {
+	    if (( $(echo "${SSPEED} < 1" | bc -l) ))
+	    then
+	      # If the shutter speed is less than 1 we do it this way (looks something like 1/60)
+	      SSPEED_FRACTION=$(echo "1/${SSPEED}" | bc)
+	      SSPEED_HEX2=$(printf "%08x\n" ${SSPEED_FRACTION} | awk '{print substr ($0,7,2) substr ($0,5,2) substr ($0,3,2) substr ($0,1,2)}' | sed 's/.\{2\}/&\\x/g' | sed -e 's/^/\\x/' | awk '{print substr($0,1,length()-2)}')
+	      # The 1st hex intiger in this case is always a 1.
+	      SSPEED_HEX1="\x01\x00\x00\x00"
+	    # if its a decimal greater than 1 (1.3 or 1.6 looks something like 13/10)
+	    elif (( $(echo ${SSPEED} | grep ".") ))
+              # If the shutter speed is less than 1 we do it this way (looks something like 1/60)
+	      # move the decimal
+	      SSPEED_SCALED=$(echo "scale=0; ${SSPEED}*10/1" | bc -l)
+              SSPEED_HEX1=$(printf "%08x\n" ${SSPEED_SCALED} | awk '{print substr ($0,7,2) substr ($0,5,2) substr ($0,3,2) substr ($0,1,2)}' | sed 's/.\{2\}/&\\x/g' | sed -e 's/^/\\x/' | awk '{print substr($0,1,length()-2)}')
+              # The 1st hex intiger in this case is always a 10, or a
+              SSPEED_HEX2="\x0a\x00\x00\x00"
+	    else
+	      # If its greater than one but not a decimal or something like this 30/1
+              SSPEED_SCALED=$(echo "scale=0; ${SSPEED}*10/1" | bc -l)
+              SSPEED_HEX1=$(printf "%08x\n" ${SSPEED_SCALED} | awk '{print substr ($0,7,2) substr ($0,5,2) substr ($0,3,2) substr ($0,1,2)}' | sed 's/.\{2\}/&\\x/g' | sed -e 's/^/\\x/' | awk '{print substr($0,1,length()-2)}')
+              # The 1st hex intiger in this case is always a 10, or a
+	      SSPEED_HEX2="\x01\x00\x00\x00"
+	    fi
+    }
+
     if [ ${CONNECTION} == W ]
     then
 	    # Set exposure from meter via wifi
@@ -767,7 +793,9 @@ EOF
 	 curl -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
     else
 	 # take picture over usb
-	 ptpcam -c
+	 # ptp cam seemed to lock up the camera
+	 #ptpcam -c
+	 gphoto2 --capture-image
     fi
 
     # Decide if we are going to retrive and delete photos from the cam
@@ -871,26 +899,34 @@ EOF
     fi
   else
   # USB image retreval and deleteion
-  echo "retriving image via usb not supported yet"
   # On the 1st pass get the last image name/hex ID
   if [ $i -eq 1 ]
   then
-    FILEHEX=$(ptpcam -L | tail -n -1 | cut -d ":" -f1)
+	  cd ${OUTPATH}
+    	  FILEHEX=$(ptpcam -L | tail -n -2 | head -n 1 | cut -d ":" -f1)
+    	  echo Current file HEX ID:${FILEHEX}
   fi
   # Increment hex id, in effort to not waste time will will calculate the id
-  if [ $i -ge 1 ]
-  then
-    FILEHEX=$(printf "0x%08x\n" $(( ${FILEHEX} + 1 )))
-  fi
+  #if [ $i -ge 1 ]
+  #then
+  #  FILEHEX=$(printf "0x%08x\n" $(( ${FILEHEX} + 1 )))
+  #fi
 
   # if $GETIMAGES -eq 1 then lets download the image
   if [ $GETIMAGES -eq 1 ]
   then
-	  ptpcam --get-file=${FILEHEX}
- 	  if [ $GETIMAGES -eq 1 ]
-          then
-	  # if $DELIMG -eq 1 then lets delete the image
-    	  	ptpcam --delete-object=${FILEHEX}
+	  if [ $i -gt 1 ]
+	  then
+		echo "Retriving file: ${FILEHEX}"
+	  	ptpcam --get-file=${FILEHEX}
+ 	  	if [ $DELIMG -eq 1 ]
+          	then
+	  		# if $DELIMG -eq 1 then lets delete the image
+			echo "Deleting file: ${FILEHEX}"
+    	  		ptpcam --delete-object=${FILEHEX}
+		fi
+  		# Increment hex id, in effort to not waste time will will calculate the id
+  		FILEHEX=$(printf "0x%08x\n" $(( ${FILEHEX} + 1 )))
 	  fi
 	  
   fi
