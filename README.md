@@ -47,6 +47,8 @@ Use at your own risk!
 
 #### Example:
 - Using USB take a large resolution photo every 5 seconds for a total of 5 images with the camera set to manual mode, iso 100, white balance auto, and a shutter speed of .5 seconds while writing the images to a directory and leaving them on the camera.. 
-	./tlapser360.sh -U y -I 5 -C 5 -m 1 -r h -i 100 -s 0.5 -w 2 -O /mnt/tmp/tlapser_test/
 
+```
+./tlapser360.sh -U y -I 5 -C 5 -m 1 -r h -i 100 -s 0.5 -w 2 -O /mnt/tmp/tlapser_test/
+```
 Copyright 2016 - Jason Charcalla
