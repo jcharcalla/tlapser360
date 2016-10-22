@@ -130,7 +130,7 @@ else
     SSPEED_SCALED=$(echo "scale=0; ${SSPEED}*10/1" | bc -l)
     SSPEED_HEX1=$(printf "%08x\n" ${SSPEED_SCALED} | awk '{print substr ($0,7,2) substr ($0,5,2) substr ($0,3,2) substr ($0,1,2)}' | sed 's/.\{2\}/&\\x/g' | sed -e 's/^/\\x/' | awk '{print substr($0,1,length()-2)}')
     # The 1st hex intiger in this case is always a 10, or a
-    SSPEED_HEX2="\x01\x00\x00\x00"
+    SSPEED_HEX2="\x10\x00\x00\x00"
 fi
 echo -e -n "${SSPEED_HEX1}${SSPEED_HEX2}" > /dev/shm/ss_hex_tmp.bin
 }
