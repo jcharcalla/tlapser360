@@ -1,8 +1,7 @@
 # tlapser360
 Used to shoot time lapse 360 photos with cameras that support the Open Spherical Camera API.
 
-This is a proof of concept script I wrote to run on  a raspberry pi with a Ricoh Theta S camera. It supports geotaging
-with gpsd and camera metering via an adafruit LUX meter. Metering features are still a work in progress and require a familiarity with the Raspberry pi GPIO interface. With metering enabled you can force the exposure to ramp in a single direction, this is useful for things like sunrise and sunset. Communication with the camera can be done with via wifi or usb. USB features are new and with the rest of the script are experimental, I've had problems with my camera becoming un-responsive and needing power cycling. If you do not need the GPS or metered exposure settings of this script and only want the ability to capture, download, and delete images from the camera you may want to look at using ptpcam alone 'ptpcam --loop-capture=5 --interval=3'.
+This is a proof of concept script I wrote to run on  a raspberry pi with a Ricoh Theta S camera. I initially wrote this as an attempt to get my Theta S camera to shoot stills faster than using the built in intervalometer. In testing I was able to shave about 2 seconds from the shooting time, This however only seems to work using WIFI and not the USB. It also supports geotaging with gpsd and camera metering via an adafruit LUX meter. Metering features are still a work in progress and require a familiarity with the Raspberry pi GPIO interface. With metering enabled you can force the exposure to ramp in a single direction, this is useful for things like sunrise and sunset. Communication with the camera can be done with via wifi or usb. USB features are new and with the rest of the script are experimental, I've had problems with my camera becoming un-responsive and needing power cycling. If you do not need the GPS or metered exposure settings of this script and only want the ability to capture, download, and delete images from the camera you may want to look at using ptpcam alone 'ptpcam --loop-capture=5 --interval=3'.
 
 
 Early test fotage can be found here: https://www.youtube.com/watch?v=IugTnvYjy6A
@@ -34,7 +33,7 @@ Use at your own risk!
 - -m <Exposure Program mode 1 2 4 9> 1 for Auto, 2 for Manual
 - -G <0/1> GPS metadata injection. This relies on GPSD being installed and properly configured. It may also introduce latency so adjust your interval accordingly.
 - -T <GPS Track log path and file name> Write a gps track log, relies on GPSD.
-- -r <image resolution size h/l> Set the resolution of the image. I may depricate this and use -K.
+- -r <image resolution size h/l> h=5376x2688 l=2048x1024 Set the resolution of the image. I may depricate this and use -K.
 - -i <iso> Camera iso ex. 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600 
 - -s <shutter speed> Floating point or integer, based on wifi api. ie 0.0004=1/2500, 0.04=1/25, 0.4=1/2.5, 4=4 seconds.
 - -w <White Balance> In WIFI mode (auto, daylight, shade, etc) USB mode in hex? (2, 4 ,8001) Check the api guides for details.
