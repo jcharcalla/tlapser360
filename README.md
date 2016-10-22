@@ -33,7 +33,7 @@ Use at your own risk!
 - -m <Exposure Program mode 1 2 4 9> 1 for Auto, 2 for Manual
 - -G <0/1> GPS metadata injection. This relies on GPSD being installed and properly configured. It may also introduce latency so adjust your interval accordingly.
 - -T <GPS Track log path and file name> Write a gps track log, relies on GPSD.
-- -r <image resolution size h/l> h=5376x2688 l=2048x1024 Set the resolution of the image. I may depricate this and use -K.
+- -r <h/l> Image resolution size h=5376x2688 l=2048x1024 Set the resolution of the image. I may depricate this and use -K.
 - -i <iso> Camera iso ex. 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600 
 - -s <shutter speed> Floating point or integer, based on wifi api. ie 0.0004=1/2500, 0.04=1/25, 0.4=1/2.5, 4=4 seconds.
 - -w <White Balance> In WIFI mode (auto, daylight, shade, etc) USB mode in hex? (2, 4 ,8001) Check the api guides for details.
