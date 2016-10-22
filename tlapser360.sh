@@ -31,6 +31,8 @@ GETIMAGES=0
 RES="l"
 METER=0
 GPS=0
+# Default DELIMG to off, unless it gets over written below
+DELIMG=0
 #METER_GPIO=4
 #METER_VALUE=0
 WHITE_B="auto"
@@ -84,8 +86,6 @@ print_usage() {
 	TRACKLOG="/dev/null" ;;
         T) TRACKLOG=$OPTARG ;;
 	O) OUTPATH=$OPTARG
-	# Default DELIMG to off, unless it gets over written below
-	DELIMG=0
 	GETIMAGES=1 ;;
 #	F) CONF=$OPTARG ;;
 	d) DELIMG=$OPTARG ;;
