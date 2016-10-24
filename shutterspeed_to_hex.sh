@@ -2,8 +2,8 @@
 #
 # Test script to convert a decimal theata s shutter speed to raw hex for usb
 #
-# Usage: ./shutterspeed_to_hex.sh <shutter speed in decimal or whole number>
-# Usage: ./shutterspeed_to_hex.sh 0.0025
+# Usage: ./shutterspeed_to_hex.sh -s <shutter speed in decimal or whole number>
+# Usage: ./shutterspeed_to_hex.sh -s 0.0025
 #
 OUTPUT_BIN=0
 
