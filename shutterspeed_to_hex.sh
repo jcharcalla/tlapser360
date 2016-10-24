@@ -5,8 +5,28 @@
 # Usage: ./shutterspeed_to_hex.sh <shutter speed in decimal or whole number>
 # Usage: ./shutterspeed_to_hex.sh 0.0025
 #
+OUTPUT_BIN=0
 
-SSPEED=$1
+print_usage() {
+	echo "Usage: $0 [-s shutter speed] [-b binfile (optional) ]"
+}
+
+if [ $# -lt 2 ]
+then
+	print_usage
+	exit 1
+fi
+
+while getopts h?b:s: opt
+do	case "$opt" in
+	s)	SSPEED="$OPTARG";;
+	b)	BINFILE="$OPTARG"
+		OUTPUT_BIN="1";;
+	h|\?)   print_usage	
+		exit 1;;
+	esac
+done
+
 
 ss_convert () {  
      if (( $(echo "${SSPEED} < 1" | bc -l) ))
@@ -39,4 +59,9 @@ ss_convert () {
 
 ss_convert
 
-echo "HEX Shutter speed: ${SSPEED_HEX1}${SSPEED_HEX2}"
+if [ $OUTPUT_BIN -eq 1 ]
+then
+    echo -e -n "${SSPEED_HEX1}${SSPEED_HEX2}" > ${BINFILE}
+else
+    echo "HEX Shutter speed: ${SSPEED_HEX1}${SSPEED_HEX2}"
+fi
