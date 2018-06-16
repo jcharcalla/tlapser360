@@ -62,7 +62,7 @@ print_usage() {
 	-U Usb mode for theta s
 	-W Wifi mode
 	-C <Image count> 
-	-m <Exposure Program mode 1 2 4 9> 
+	-m <Exposure Program mode 1 2 4 9> 1 = Manual, 2 = Auto, 4 = shutter priority, 9 ISO priority
 	-G <GPS support 0/1 - This may introduce added latency!> 
 	-T <GPS Track log path and file name> 
 	-r <image resolution size h/l> 

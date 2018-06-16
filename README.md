@@ -32,7 +32,7 @@ Use at your own risk!
 - -U (y/n) default n. Usb mode for Ricoh Theta S. This will control the camera over usb and requires libptp and gphoto2.
 - -W (y/n) Default y Wifi mode unless USB mode is enabled. Control the camera using the direct wifi connection and Opens Spherical camera API.
 - -C (Image count) How many total images you would like to take.
-- -m (Exposure Program mode 1 2 4 9) 1 for Auto, 2 for Manual
+- -m (Exposure Program mode 1 2 4 9) 1 = Manual, 2 = Auto, 4 = shutter priority, 9 ISO priority
 - -G (0/1) GPS metadata injection. This relies on GPSD being installed and properly configured. It may also introduce latency so adjust your interval accordingly.
 - -T (GPS Track log path and file name) Write a gps track log, relies on GPSD.
 - -r (h/l) Image resolution size h=5376x2688 l=2048x1024 Set the resolution of the image. I may depricate this and use -K.
