@@ -251,6 +251,7 @@ EOF
 	fi
 	echo "Setting mode via WIFI"
 	# make the actual request to the camera in wifi mode
+	echo "curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_SET_REQ}""
 	curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_SET_REQ}"
 	# debug
 	echo "$JSON_SET_REQ"
@@ -814,6 +815,7 @@ EOF
     then
 	 # take picture over wifi
 	 echo "Taking photo via wifi"
+	 echo "curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute"
 	 curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute
     else
 	 # take picture over usb
