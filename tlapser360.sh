@@ -79,7 +79,7 @@ print_usage() {
        exit 1
 }
   
-  while getopts h?H:p:I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
+  while getopts h?H:p:a:I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
       case $arg in
 	H) CAMIP=$OPTARG ;;
 	p) PORT=$OPTARG ;;
