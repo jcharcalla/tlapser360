@@ -57,6 +57,7 @@ print_usage() {
 	-H Camera hostname or IP address (defaults to 192.168.1.1)
 	-p Camera port (defaults to 80)
 	-a Authentication string for client mode "THETAYL<serial number>:<s/n or password>". NOTE: this is not secure!
+	-l Legacy support, if added this script should work with a Theta S which defaults to api v2. Read here https://developers.theta360.com/en/docs/v2.1/api_reference/getting_started.html#set_api_version
 	-I <Interval seconds> 
 	-U Usb mode for theta s
 	-W Wifi mode
@@ -79,11 +80,12 @@ print_usage() {
        exit 1
 }
   
-  while getopts h?H:p:a:I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
+  while getopts h?H:p:a:l:I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
       case $arg in
 	H) CAMIP=$OPTARG ;;
 	p) PORT=$OPTARG ;;
 	a) CURLAUTHSTRING="-D - --digest -u "$OPTARG"" ;;
+	l) LEGACY_SUPPORT="YES";;
 	I) INTERVAL=$OPTARG
 	ORIGINAL_INTERVAL=$INTERVAL;;
 	W) CONNECTION=W ;;
@@ -146,13 +148,18 @@ echo -e -n "${SSPEED_HEX1}${SSPEED_HEX2}" > /dev/shm/ss_hex_tmp.bin
 # somewhere here I would need to parse a config file if I had one
 
 # If were using USB we can skip this step
-if [ "$CONNECTION" == W ]
+#
+# Session ID was required in api 2.0, which is still the default on older cammeras. 
+# I think I can use this to support older cameras and set them to use API 2.1
+#
+if [ "$LEGACY_SUPPORT" == YES ]
 then
 	# connect to the camera, retrive the last session id
 	echo "Connecting to camera with WIFI"
+	echo "Athentication string is "${CURLAUTHSTRING}""
 	SID=$(curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d '{"name": "camera.startSession"}' | cut -d "\"" -f 14 | cut -d "_" -f2)
 
-	echo "$SID"
+	echo "Session ID is ${SID}"
 
 # take photos durring a while loop and wget them in the background.
 JSON_TAKEPIC_REQ=$(< <(cat <<EOF
@@ -160,6 +167,8 @@ JSON_TAKEPIC_REQ=$(< <(cat <<EOF
   "name": "camera.takePicture",
   "parameters": {
     "sessionId": "SID_${SID}"
+    "options": { 
+       "clientVersion": 2 
     }
 }
 EOF
