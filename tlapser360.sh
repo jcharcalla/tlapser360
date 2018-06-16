@@ -56,7 +56,7 @@ print_usage() {
 	echo "Usage: $PROGNAME 
 	-H Camera hostname or IP address (defaults to 192.168.1.1)
 	-p Camera port (defaults to 80)
-	-a Authentication string for client mode "THETAYL<serial number>:<s/n or password>"
+	-a Authentication string for client mode "THETAYL<serial number>:<s/n or password>". NOTE: this is not secure!
 	-I <Interval seconds> 
 	-U Usb mode for theta s
 	-W Wifi mode
