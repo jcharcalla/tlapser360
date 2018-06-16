@@ -163,22 +163,37 @@ then
 
 	echo "Session ID is ${SID}"
 
-# take photos durring a while loop and wget them in the background.
-JSON_TAKEPIC_REQ=$(< <(cat <<EOF
+# update the client api version
+JSON_SETAPI_REQ=$(< <(cat <<EOF
 {
-  "name": "camera.takePicture",
-  "parameters": {
-    "sessionId": "SID_${SID}"
-    "options": { 
-       "clientVersion": 2 
+    "name": "camera.setOptions", 
+    "parameters": {
+      "sessionId": "SID_${SID}"
+      "options": { 
+        "clientVersion": 2 	
+      }
     }
 }
 EOF
 ))
-	#echo $JSON_REQ
-	JSON_FILE_REQ="null"
+
+echo "Setting api v2.1"
+curl ${CURL_HEADER} -d "${JSON_SETAPI_REQ}" ${CURLAUTHSTRING} -s -X POST "http://${CAMIP}:${PORT}/osc/commands/execute"
 else
 	echo "Legacy mode disabled"
+fi
+
+if [ "${CONNECTION}" == W ]
+then
+# take photos durring a while loop and wget them in the background.
+JSON_TAKEPIC_REQ=$(< <(cat <<EOF
+{
+  "name": "camera.takePicture"
+}
+EOF
+))
+        #echo $JSON_REQ
+        JSON_FILE_REQ="null"
 fi
 
 # Set the image resolution
