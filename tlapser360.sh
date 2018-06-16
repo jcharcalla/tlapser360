@@ -176,7 +176,7 @@ EOF
 	#echo $JSON_REQ
 	JSON_FILE_REQ="null"
 else
-	echo "Using direct USB connection"
+	echo "Legacy mode disabled"
 fi
 
 # Set the image resolution
@@ -688,7 +688,6 @@ JSON_METER_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
   "parameters": {
-    "sessionId": "SID_${SID}",
     "options": {
           "fileFormat": {
           "type": "jpeg",
@@ -779,7 +778,6 @@ JSON_GPS_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
   "parameters": {
-    "sessionId": "SID_${SID}",
     "options": {
                   "gpsInfo": {
         	      "lat": ${GPS_LAT},
@@ -968,7 +966,7 @@ EOF
 done
 
 #close session (only for wifi mode)
-if [ ${CONNECTION} == W ]
+if [ ${LEGACY_SUPPORT} == YES ]
   then
 JSON_CLOSE_REQ=$(< <(cat <<EOF
 {
