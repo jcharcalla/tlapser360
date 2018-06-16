@@ -32,6 +32,8 @@ GETIMAGES=0
 RES="l"
 METER=0
 GPS=0
+# header for curl, needed with api v2.1
+CURL_HEADER="-H "Content-Type:application/json""
 # Default DELIMG to off, unless it gets over written below
 DELIMG=0
 #METER_GPIO=4
@@ -156,8 +158,8 @@ if [ "$LEGACY_SUPPORT" == YES ]
 then
 	# connect to the camera, retrive the last session id
 	echo "Connecting to camera with WIFI"
-	echo "Athentication string is "${CURLAUTHSTRING}""
-	SID=$(curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d '{"name": "camera.startSession"}' | cut -d "\"" -f 14 | cut -d "_" -f2)
+	# authstring should not be needed here since older cameras do not do clietn wifi mode
+	SID=$(curl ${CURL_HEADER} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d '{"name": "camera.startSession"}' | cut -d "\"" -f 14 | cut -d "_" -f2)
 
 	echo "Session ID is ${SID}"
 
@@ -251,8 +253,8 @@ EOF
 	fi
 	echo "Setting mode via WIFI"
 	# make the actual request to the camera in wifi mode
-	echo "curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_SET_REQ}""
-	curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_SET_REQ}"
+	echo "curl ${CURL_HEADER} -d "${JSON_SET_REQ}" ${CURLAUTHSTRING} -s -X POST "http://${CAMIP}:${PORT}/osc/commands/execute""
+	curl ${CURL_HEADER} -d "${JSON_SET_REQ}" ${CURLAUTHSTRING} -s -X POST "http://${CAMIP}:${PORT}/osc/commands/execute"
 	# debug
 	echo "$JSON_SET_REQ"
 else
@@ -706,7 +708,7 @@ EOF
 ))
     	echo ${JSON_METER_SET_REQ}
 	# set the camera propertis via wifi
-    	curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_METER_SET_REQ}"
+    	curl ${CURL_HEADER} -d "${JSON_METER_SET_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute
     	#echo "$JSON_METER_SET_REQ"
     else
 	#set the camea properties via usb
@@ -794,7 +796,7 @@ EOF
 ))
 	   	    		# Set the gps values on the camera via wifi
 		    		echo ${JSON_GPS_SET_REQ}
-	   	    		curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_GPS_SET_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+	   	    		curl ${CURL_HEADER} -d "${JSON_GPS_SET_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
 		    	else
 				# Set the gps via usb
 				ptpcam --set-property=0xD801 --val="${GPS_LAT},${GPS_LON},${GPS_ALT}m@${GPS_DATE}${GPS_TIME}Z,WGS84"
@@ -815,8 +817,8 @@ EOF
     then
 	 # take picture over wifi
 	 echo "Taking photo via wifi"
-	 echo "curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute"
-	 curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute
+	 echo "curl ${CURL_HEADER} -d "${JSON_TAKEPIC_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute"
+	 curl ${CURL_HEADER} -d "${JSON_TAKEPIC_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute
     else
 	 # take picture over usb
 	 # ptp cam seemed to lock up the camera
@@ -834,7 +836,7 @@ EOF
     # Retrive the file name, but lets wait a couple iterations.
     if [ $i -eq 2 ]
     then
-	  FILEPATH=$(curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | cut -d "\"" -f 26)
+	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | cut -d "\"" -f 26)
 	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f2)
 	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f2 | cut -d . -f1 | cut -d R -f2)
 	  FILEEXT=$(echo "$FILEPATH" | cut -d . -f2)
@@ -879,7 +881,7 @@ EOF
 	if [ $GETIMAGES -eq 1 ]
 	then
 		# This is where we download the image to the raspberry pi.
-       		curl ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_FILE_REQ}" > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
+       		curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
 
 		# Verify the last image we downloaded was not zero bytes.
 		# This can happen for numerous reasons. If it is zero bytes
@@ -917,7 +919,7 @@ EOF
 				# might delete it prior to us getting it fully downloaded.
 				# this gets backgrounded just in case it adds time.
 				echo "Deleting image ${OLDFILEPATH} from the camera!"
-				curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_DELIMG_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null &
+				curl ${CURL_HEADER} -d "${JSON_DELIMG_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null &
 			fi
 		fi
 	fi
