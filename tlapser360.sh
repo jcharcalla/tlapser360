@@ -832,7 +832,7 @@ EOF
     then
 	 # take picture over wifi
 	 echo "Taking photo via wifi"
-	 echo "curl ${CURL_HEADER} -d "${JSON_TAKEPIC_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute"
+	 echo "curl ${CURL_HEADER} -d /"${JSON_TAKEPIC_REQ}/" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute"
 	 curl ${CURL_HEADER} -d "${JSON_TAKEPIC_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute
     else
 	 # take picture over usb
@@ -851,7 +851,8 @@ EOF
     # Retrive the file name, but lets wait a couple iterations.
     if [ $i -eq 2 ]
     then
-	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | cut -d "\"" -f 26)
+	  echo "2nd pass, retriving file name"
+	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | sed 's/.*storageUri"://' | cut -d "," -f1 | cut -d'"' -f2)
 	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f2)
 	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f2 | cut -d . -f1 | cut -d R -f2)
 	  FILEEXT=$(echo "$FILEPATH" | cut -d . -f2)
@@ -865,6 +866,7 @@ EOF
     
     if [ $i -ge 3 ]
     then
+	  echo "Image number 3 or above."
 	  # If NEWFILEPATH was set last time around set OLDFILEPATH to its last value
 	  # beforit increments up one
 	  if [ -z ${NEWFILEPATH+x} ] 
