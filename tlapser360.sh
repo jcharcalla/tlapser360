@@ -216,7 +216,6 @@ JSON_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
   "parameters": {
-    "sessionId": "SID_${SID}",
     "options": {
 	  "fileFormat": {
           "type": "jpeg",
@@ -237,7 +236,6 @@ JSON_SET_REQ=$(< <(cat <<EOF
 {
   "name": "camera.setOptions",
   "parameters": {
-    "sessionId": "SID_${SID}",
     "options": {
           "fileFormat": {
           "type": "jpeg",
