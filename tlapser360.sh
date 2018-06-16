@@ -83,7 +83,7 @@ print_usage() {
       case $arg in
 	H) CAMIP=$OPTARG ;;
 	p) PORT=$OPTARG ;;
-	a) CURLAUTHSTRING="-D - --digest -u "$OPTARG""
+	a) CURLAUTHSTRING="-D - --digest -u "$OPTARG"" ;;
 	I) INTERVAL=$OPTARG
 	ORIGINAL_INTERVAL=$INTERVAL;;
 	W) CONNECTION=W ;;
