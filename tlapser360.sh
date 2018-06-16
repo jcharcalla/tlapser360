@@ -721,7 +721,7 @@ JSON_METER_SET_REQ=$(< <(cat <<EOF
 }
 EOF
 ))
-    	echo ${JSON_METER_SET_REQ}
+    	echo "Setting metering ${JSON_METER_SET_REQ}"
 	# set the camera propertis via wifi
     	curl ${CURL_HEADER} -d "${JSON_METER_SET_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute
     	#echo "$JSON_METER_SET_REQ"
@@ -810,7 +810,7 @@ JSON_GPS_SET_REQ=$(< <(cat <<EOF
 EOF
 ))
 	   	    		# Set the gps values on the camera via wifi
-		    		echo ${JSON_GPS_SET_REQ}
+		    		echo "Setting gps: ${JSON_GPS_SET_REQ}"
 	   	    		curl ${CURL_HEADER} -d "${JSON_GPS_SET_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
 		    	else
 				# Set the gps via usb
@@ -880,7 +880,7 @@ EOF
 	  FILENUM=$(( $FILENUM + 1 ))
 	  # Add the zero padding back in
 	  FILENUM=$(printf "%07d\n" $FILENUM)
-	  echo "$FILENUM"
+	  echo "file number: ${FILENUM}"
 	  NEWFILEPATH=${FILEDIR}/R${FILENUM}.${FILEEXT}	 
 	  echo "$NEWFILEPATH"
 	  # download the image
@@ -896,6 +896,7 @@ EOF
 	if [ $GETIMAGES -eq 1 ]
 	then
 		# This is where we download the image to the raspberry pi.
+		echo "retriving file ${NEWFILEPATH}"
        		curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
 
 		# Verify the last image we downloaded was not zero bytes.
