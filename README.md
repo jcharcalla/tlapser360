@@ -26,6 +26,8 @@ Use at your own risk!
 
 ### Usage:
 
+- -H Camera hostname or IP address (defaults to 192.168.1.1)
+- -p Camera port (defaults to 80)
 - -I (Interval seconds) : This sets the sleep interval time between photos. Be aware this does not take into consideration any latency added by features of this script such as image downloads, usb control, gps metat data injection, ilong exposures, etc. This means if you set a 10 second interval your photos may be taken every 12 seconds. You can also set this to a lower threshold than the Ricoh Theta S can shoot using it's built in intervalometer. In testing I've been able to shoot a photo ever 3 seconds in low resolution and 5 seconds in high res without over running the on cammera buffer. 
 - -U (y/n) default n. Usb mode for Ricoh Theta S. This will control the camera over usb and requires libptp and gphoto2.
 - -W (y/n) Default y Wifi mode unless USB mode is enabled. Control the camera using the direct wifi connection and Opens Spherical camera API.

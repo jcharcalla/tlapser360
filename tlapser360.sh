@@ -24,6 +24,7 @@ PROGNAME=$(basename "$0")
 #. $PROGPATH/utils.sh
 
 #Set some defaults in case they are not specified
+# These are now command line args that can overide these defaults
 CAMIP=192.168.1.1
 PORT=80
 CONNECTION="W"
@@ -53,6 +54,8 @@ LUX_METER_SCRIPT="~/Adafruit-Raspberry-Pi-Python-Code-IainColledge/Adafruit_TSL2
   
 print_usage() {
 	echo "Usage: $PROGNAME 
+	-H Camera hostname or IP address (defaults to 192.168.1.1)
+	-p Camera port (defaults to 80)
 	-I <Interval seconds> 
 	-U Usb mode for theta s
 	-W Wifi mode
@@ -75,8 +78,10 @@ print_usage() {
        exit 1
 }
   
-  while getopts h?I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
+  while getopts h?H:p:I:U:W:C:G:T:O:F:d:m:r:i:s:w:M:R:A:P: arg ; do
       case $arg in
+	H) CAMIP=$OPTARG ;;
+	p) PORT=$OPTARG ;;
 	I) INTERVAL=$OPTARG
 	ORIGINAL_INTERVAL=$INTERVAL;;
 	W) CONNECTION=W ;;
