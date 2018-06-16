@@ -813,7 +813,8 @@ EOF
     if [ ${CONNECTION} == W ]
     then
 	 # take picture over wifi
-	 curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute >> /dev/null
+	 echo "Taking photo via wifi"
+	 curl ${CURLAUTHSTRING} -s -X POST -d "${JSON_TAKEPIC_REQ}" http://${CAMIP}:${PORT}/osc/commands/execute
     else
 	 # take picture over usb
 	 # ptp cam seemed to lock up the camera
@@ -966,7 +967,7 @@ EOF
 done
 
 #close session (only for wifi mode)
-if [ ${LEGACY_SUPPORT} == YES ]
+if [ ${LEGACY_SUPPORT} == "YES" ]
   then
 JSON_CLOSE_REQ=$(< <(cat <<EOF
 {
