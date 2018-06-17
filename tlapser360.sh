@@ -877,9 +877,11 @@ EOF
 	  echo "Image number 3 or above."
 	  # If NEWFILEPATH was set last time around set OLDFILEPATH to its last value
 	  # beforit increments up one
-	  if [ -z ${NEWFILEPATH} ] 
+	  if [ -z ${NEWFILEPATH+x} ] 
 	  then 
 		  echo "No previous filename. ignoring for now"
+		  # quick dirty fix becasue im tired
+		  OLDFILEPATH=${FILEPATH}
 	  else 
 		  echo "Found previous file name, OLDFILEPATH set to previous"
 		  OLDFILEPATH=${NEWFILEPATH}
