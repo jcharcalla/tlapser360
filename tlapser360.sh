@@ -925,6 +925,8 @@ EOF
 		# not quit, but we should disable further downloads and deletion.
 		if [ -z ${OLDFILEPATH+x} ]
 	       	then
+			echo "oldpath not set yet"
+		else
 			if [ -s ${OUTPATH}/R${PREVFILENUM}.${FILEEXT} ]
 			then
 				echo "nothing to see here"
