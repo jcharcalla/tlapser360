@@ -855,7 +855,7 @@ EOF
 	  # NOTE: all of this may need changed to support non ricoh cameras 
 	  # this relies on absolute path depths and is a bad way to do this
 	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | grep "_latestFileUrl" | sed 's/.*_latestFileUrl"://' | cut -d "," -f1 | cut -d '"' -f2)
-	  echo "File path is ${FILEPATH}"
+	  #echo "File path is ${FILEPATH}"
 	  # This junk is needed, the idea is to save time we only get the first image we shoots url
 	  # then as we increment we just reconstruct the url
 	  # this saves on slow api calls when the camera may already be busy
@@ -877,7 +877,7 @@ EOF
 	  echo "Image number 3 or above."
 	  # If NEWFILEPATH was set last time around set OLDFILEPATH to its last value
 	  # beforit increments up one
-	  if [ -z ${NEWFILEPATH+x} ] 
+	  if [ -z ${NEWFILEPATH} ] 
 	  then 
 		  echo "No previous filename. ignoring for now"
 	  else 
