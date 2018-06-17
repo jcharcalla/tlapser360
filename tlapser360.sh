@@ -882,7 +882,7 @@ EOF
 	  # do some addition
 	  # remove any zero padding
 	  FILENUM=$(echo "$FILENUM" | sed 's/^0*//')
-	  echo "trying basic addition..."
+	  echo "trying basic addition... ${FILENUM} + 1"
 	  FILENUM=$(($FILENUM + 1))
 	  # Add the zero padding back in
 	  FILENUM=$(printf "%07d\n" $FILENUM)
