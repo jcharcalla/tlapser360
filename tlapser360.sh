@@ -927,6 +927,7 @@ EOF
 			echo "nothing to see here"
 		else
 			echo "Last file was zero bytes, disableing download/deletions."
+			echo "file should be: ${OUTPATH}/R${PREFILENUM}.${FILEEXT}"
 			GETIMAGES=0
 			DELIMG=0
 		fi
