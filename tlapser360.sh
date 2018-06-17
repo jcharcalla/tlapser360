@@ -854,7 +854,7 @@ EOF
 	  echo "2nd pass, retriving file name"
 	  # NOTE: all of this may need changed to support non ricoh cameras 
 	  # this relies on absolute path depths and is a bad way to do this
-	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | sed 's/.*_latestFileUrl"://' | cut -d "," -f1 | cut -d '"' -f2)
+	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | grep "_latestFileUrl" | sed 's/.*_latestFileUrl"://' | cut -d "," -f1 | cut -d '"' -f2)
 	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f7)
 	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f1 | cut -d R -f2)
 	  FILEEXT=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f2)
