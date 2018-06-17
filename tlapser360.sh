@@ -922,12 +922,12 @@ EOF
 		# it doesent nescisarly mean were not takeing pictures so we will
 		# not quit, but we should disable further downloads and deletion.
 
-		if [ -s ${OUTPATH}/R${PREFILENUM}.${FILEEXT} ]
+		if [ -s ${OUTPATH}/R${PREVFILENUM}.${FILEEXT} ]
 		then
 			echo "nothing to see here"
 		else
 			echo "Last file was zero bytes, disableing download/deletions."
-			echo "file should be: ${OUTPATH}/R${PREFILENUM}.${FILEEXT}"
+			echo "file should be: ${OUTPATH}/R${PREVFILENUM}.${FILEEXT}"
 			GETIMAGES=0
 			DELIMG=0
 		fi
