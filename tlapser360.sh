@@ -913,9 +913,9 @@ EOF
 	if [ $GETIMAGES -eq 1 ]
 	then
 		# This is where we download the image to the raspberry pi.
-		echo "retriving file ${NEWFILEPATH}"
+		echo "retriving file ${OLDFILEPATH}"
        		#curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
-       		cd ${OUTPATH} && curl ${CURLAUTHSTRING} -s -O ${NEWFILEPATH} &
+       		cd ${OUTPATH} && curl ${CURLAUTHSTRING} -s -O ${OLDFILEPATH} &
 
 		# Verify the last image we downloaded was not zero bytes.
 		# This can happen for numerous reasons. If it is zero bytes
