@@ -865,11 +865,11 @@ EOF
 	  # This needs some checking if its there
 	  # These two lines are Ricoh specific, note the \/R in the sed command
 	  FILEDIR=$(echo "$FILEPATH" | sed -n -e 's/^.*http:\/\/'${CAMIP}'//p' | sed 's/\/R.*//')
-	  FILEURI=$(echo "$FILEPATH" | sed 's/\/R.*//'
-	  echo "$FILEPATH"
-	  echo "$FILENAME"
-	  echo "$FILEDIR"
-	  echo "$FILEEXT"
+	  FILEURI=$(echo "$FILEPATH" | sed 's/\/R.*//')
+	  echo "File path: ${FILEPATH}"
+	  echo "File name: ${FILENAME}"
+	  echo "File dir: ${FILEDIR}"
+	  echo "File ext: ${FILEEXT}"
     fi
     
     if [ $i -ge 3 ]
@@ -898,7 +898,7 @@ EOF
 	  #NEWFILEPATH=${FILEDIR}/R${FILENUM}.${FILEEXT}	 
 	  NEWFILEPATH=${FILEURI}/R${FILENUM}.${FILEEXT}	 
 	  #NEWFILEPATH=${FILEPATH}
-	  echo "$NEWFILEPATH"
+	  echo "Next file at ${NEWFILEPATH}"
 	  # download the image
 	  JSON_FILE_REQ=$(< <(cat <<EOF
 {
