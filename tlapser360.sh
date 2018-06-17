@@ -881,7 +881,7 @@ EOF
 	  then 
 		  echo "No previous filename. ignoring for now"
 		  # quick dirty fix becasue im tired
-		  OLDFILEPATH=${FILEPATH}
+		  #OLDFILEPATH=${FILEPATH}
 	  else 
 		  echo "Found previous file name, OLDFILEPATH set to previous"
 		  OLDFILEPATH=${NEWFILEPATH}
@@ -915,25 +915,26 @@ EOF
 	if [ $GETIMAGES -eq 1 ]
 	then
 		# This is where we download the image to the raspberry pi.
-		echo "retriving file ${OLDFILEPATH}"
+		echo "retriving file ${NEWFILEPATH}"
        		#curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
-       		cd ${OUTPATH} && curl ${CURLAUTHSTRING} -s -O ${OLDFILEPATH} &
+       		cd ${OUTPATH} && curl ${CURLAUTHSTRING} -s -O ${NEWFILEPATH} &
 
 		# Verify the last image we downloaded was not zero bytes.
 		# This can happen for numerous reasons. If it is zero bytes
 		# it doesent nescisarly mean were not takeing pictures so we will
 		# not quit, but we should disable further downloads and deletion.
-
-		if [ -s ${OUTPATH}/R${PREVFILENUM}.${FILEEXT} ]
-		then
-			echo "nothing to see here"
-		else
-			echo "Last file was zero bytes, disableing download/deletions."
-			echo "file should be: ${OUTPATH}/R${PREVFILENUM}.${FILEEXT}"
-			GETIMAGES=0
-			DELIMG=0
+		if [ -z ${OLDFILEPATH+x} ]
+	       	then
+			if [ -s ${OUTPATH}/R${PREVFILENUM}.${FILEEXT} ]
+			then
+				echo "nothing to see here"
+			else
+				echo "Last file was zero bytes, disableing download/deletions."
+				echo "file should be: ${OUTPATH}/R${PREVFILENUM}.${FILEEXT}"
+				GETIMAGES=0
+				DELIMG=0
+			fi
 		fi
-
 
 		# Delete image if requested.
 		if [ $DELIMG -eq 1 ]
