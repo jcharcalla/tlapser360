@@ -921,7 +921,7 @@ EOF
 		# it doesent nescisarly mean were not takeing pictures so we will
 		# not quit, but we should disable further downloads and deletion.
 
-		if [ -s ${OUTPATH}TL_${FILENUM}.${FILEEXT} ]
+		if [ -s ${OUTPATH}/R${FILENUM}.${FILEEXT} ]
 		then
 			echo "nothing to see here"
 		else
