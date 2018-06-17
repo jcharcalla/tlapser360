@@ -855,6 +855,8 @@ EOF
 	  # NOTE: all of this may need changed to support non ricoh cameras 
 	  # this relies on absolute path depths and is a bad way to do this
 	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | grep "_latestFileUrl" | sed 's/.*_latestFileUrl"://' | cut -d "," -f1 | cut -d '"' -f2)
+	  echo "File path is ${FILEPATH}"
+	  # This junk may no longer be needed
 	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f7)
 	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f1 | cut -d R -f2)
 	  FILEEXT=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f2)
@@ -905,7 +907,8 @@ EOF
 	then
 		# This is where we download the image to the raspberry pi.
 		echo "retriving file ${NEWFILEPATH}"
-       		curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
+       		#curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
+       		curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -O "${OUTPATH}"TL_${FILENUM}.${FILEEXT} ${FILEPATH} &
 
 		# Verify the last image we downloaded was not zero bytes.
 		# This can happen for numerous reasons. If it is zero bytes
@@ -995,7 +998,7 @@ EOF
 done
 
 #close session (only for wifi mode)
-if [ ${LEGACY_SUPPORT} == "YES" ]
+if [ ${LEGACY_SUPPORT} == YES ]
   then
 JSON_CLOSE_REQ=$(< <(cat <<EOF
 {
