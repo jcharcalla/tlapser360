@@ -891,7 +891,8 @@ EOF
 	  # Add the zero padding back in
 	  FILENUM=$(printf "%07d\n" $FILENUM)
 	  echo "file number: ${FILENUM}"
-	  NEWFILEPATH=${FILEDIR}/R${FILENUM}.${FILEEXT}	 
+	  #NEWFILEPATH=${FILEDIR}/R${FILENUM}.${FILEEXT}	 
+	  NEWFILEPATH=${FILEPATH}
 	  echo "$NEWFILEPATH"
 	  # download the image
 	  JSON_FILE_REQ=$(< <(cat <<EOF
@@ -908,7 +909,7 @@ EOF
 		# This is where we download the image to the raspberry pi.
 		echo "retriving file ${NEWFILEPATH}"
        		#curl ${CURL_HEADER} -d "${JSON_FILE_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute > "${OUTPATH}"TL_${FILENUM}.${FILEEXT} &
-       		curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -O "${OUTPATH}"TL_${FILENUM}.${FILEEXT} ${FILEPATH} &
+       		curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -O "${OUTPATH}"TL_${FILENUM}.${FILEEXT} ${NEWFILEPATH} &
 
 		# Verify the last image we downloaded was not zero bytes.
 		# This can happen for numerous reasons. If it is zero bytes
@@ -936,7 +937,9 @@ EOF
 {
   "name": "camera.delete",
   "parameters": {
-    "fileUri": "${OLDFILEPATH}"
+    "fileUrls": [
+      "${OLDFILEPATH}"
+      ]
     }
 }
 EOF
