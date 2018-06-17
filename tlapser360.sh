@@ -758,7 +758,7 @@ EOF
       # This is where the meter section ends.
     fi
     #       curl -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute -d "${JSON_FILE_REQ}" > ${5}${FILENAME} &
-    echo $i
+    echo "Current itteration: $i"
     date
 
     #
@@ -832,7 +832,7 @@ EOF
     then
 	 # take picture over wifi
 	 echo "Taking photo via wifi"
-	 echo "curl ${CURL_HEADER} -d /"${JSON_TAKEPIC_REQ}/" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute"
+	 echo "curl ${CURL_HEADER} -d \"${JSON_TAKEPIC_REQ}\" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute"
 	 curl ${CURL_HEADER} -d "${JSON_TAKEPIC_REQ}" ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/commands/execute
     else
 	 # take picture over usb
@@ -852,12 +852,14 @@ EOF
     if [ $i -eq 2 ]
     then
 	  echo "2nd pass, retriving file name"
-	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | sed 's/.*storageUri"://' | cut -d "," -f1 | cut -d'"' -f2)
-	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f2)
-	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f2 | cut -d . -f1 | cut -d R -f2)
-	  FILEEXT=$(echo "$FILEPATH" | cut -d . -f2)
+	  # NOTE: all of this may need changed to support non ricoh cameras 
+	  # this relies on absolute path depths and is a bad way to do this
+	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | sed 's/.*_latestFileUrl"://' | cut -d "," -f1 | cut -d '"' -f2)
+	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f7)
+	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f1 | cut -d R -f2)
+	  FILEEXT=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f2)
 	  # This needs some checking if its there
-	  FILEDIR=$(echo "$FILEPATH" | cut -d "/" -f1)
+	  FILEDIR=$(echo "$FILEPATH" | sed -n -e 's/^.*http:\/\/'${CAMIP}'//p' | sed 's/\/R.*//')
 	  echo "$FILEPATH"
 	  echo "$FILENAME"
 	  echo "$FILEDIR"
@@ -871,8 +873,9 @@ EOF
 	  # beforit increments up one
 	  if [ -z ${NEWFILEPATH+x} ] 
 	  then 
-		  echo "No previous filename."
+		  echo "No previous filename. ignoring for now"
 	  else 
+		  echo "Found previous file name, OLDFILEPATH set to previous"
 		  OLDFILEPATH=${NEWFILEPATH}
 	  fi
 
