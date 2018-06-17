@@ -890,6 +890,7 @@ EOF
 	  #echo "filenum=${FILENUM}"
 	  FILENUM=$(echo "$FILENUM" | sed 's/^0*//')
 	  #echo "filenum=${FILENUM}"
+	  PREVFILENUM=$(printf "%07d\n" $FILENUM)
 	  echo "trying basic addition... ${FILENUM} + 1"
 	  FILENUM=$((FILENUM + 1))
 	  # Add the zero padding back in
@@ -921,7 +922,7 @@ EOF
 		# it doesent nescisarly mean were not takeing pictures so we will
 		# not quit, but we should disable further downloads and deletion.
 
-		if [ -s ${OUTPATH}/R${FILENUM}.${FILEEXT} ]
+		if [ -s ${OUTPATH}/R${PREFILENUM}.${FILEEXT} ]
 		then
 			echo "nothing to see here"
 		else
