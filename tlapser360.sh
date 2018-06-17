@@ -856,12 +856,16 @@ EOF
 	  # this relies on absolute path depths and is a bad way to do this
 	  FILEPATH=$(curl ${CURL_HEADER} ${CURLAUTHSTRING} -s -X POST http://${CAMIP}:${PORT}/osc/state | grep "_latestFileUrl" | sed 's/.*_latestFileUrl"://' | cut -d "," -f1 | cut -d '"' -f2)
 	  echo "File path is ${FILEPATH}"
-	  # This junk may no longer be needed
+	  # This junk is needed, the idea is to save time we only get the first image we shoots url
+	  # then as we increment we just reconstruct the url
+	  # this saves on slow api calls when the camera may already be busy
 	  FILENAME=$(echo "$FILEPATH" | cut -d "/" -f7)
 	  FILENUM=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f1 | cut -d R -f2)
 	  FILEEXT=$(echo "$FILEPATH" | cut -d "/" -f7 | cut -d . -f2)
 	  # This needs some checking if its there
+	  # These two lines are Ricoh specific, note the \/R in the sed command
 	  FILEDIR=$(echo "$FILEPATH" | sed -n -e 's/^.*http:\/\/'${CAMIP}'//p' | sed 's/\/R.*//')
+	  FILEURI=$(echo "$FILEPATH" | sed 's/\/R.*//'
 	  echo "$FILEPATH"
 	  echo "$FILENAME"
 	  echo "$FILEDIR"
@@ -892,7 +896,8 @@ EOF
 	  FILENUM=$(printf "%07d\n" $FILENUM)
 	  echo "file number: ${FILENUM}"
 	  #NEWFILEPATH=${FILEDIR}/R${FILENUM}.${FILEEXT}	 
-	  NEWFILEPATH=${FILEPATH}
+	  NEWFILEPATH=${FILEURI}/R${FILENUM}.${FILEEXT}	 
+	  #NEWFILEPATH=${FILEPATH}
 	  echo "$NEWFILEPATH"
 	  # download the image
 	  JSON_FILE_REQ=$(< <(cat <<EOF
