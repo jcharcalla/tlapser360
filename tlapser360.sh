@@ -17,6 +17,7 @@
 # .1 - ugly script uploaded to github.
 # .2 - added usb support via libptp
 # .3 - function for converting decimal shutter speeds to hex for raw usb
+# .4 - 06-19-18 - Updated to support theta v wifi client mode and osc API 2.1
 
 
 PROGNAME=$(basename "$0")
@@ -58,7 +59,7 @@ print_usage() {
 	echo "Usage: $PROGNAME 
 	-H Camera hostname or IP address (defaults to 192.168.1.1)
 	-p Camera port (defaults to 80)
-	-a Authentication string for client mode "THETAYL<serial number>:<s/n or password>". NOTE: this is not secure!
+	-a Authentication string for WIFI client mode \"THETAYL<serial number>:<s/n or password>\". NOTE: this is not secure!
 	-l Legacy support, if added this script should work with a Theta S which defaults to api v2. Read here https://developers.theta360.com/en/docs/v2.1/api_reference/getting_started.html#set_api_version
 	-I <Interval seconds> 
 	-U Usb mode for theta s
@@ -76,9 +77,10 @@ print_usage() {
 	-F <Config file - NOT SUPPORTED> 
 	-M < 0/1 use a TSL2561 LUX sensor for metering. if used we will add time to your interval > 
 	-R <Ramp exposure speed up (longer shutter - Sunset) or down (shorter/faster shutter - Sunrise) based on external LUX meter.> 
-	-A <Sunrise time (24hr no : ex, 6:00AM=600)> -P <Sunset time (24hr no ":" ex, 7:00PM=1900)>
+	-A <Sunrise time (24hr no : ex, 6:00AM=600)> -P <Sunset time (24hr no \":\" ex, 7:00PM=1900)>
 	"
-       echo "ISO and Shutter speed are only needed if Exposure mode is set to 1"                                                               
+       
+	echo "ISO and Shutter speed are only needed if Exposure mode is set to 1"                                                               
        exit 1
 }
   

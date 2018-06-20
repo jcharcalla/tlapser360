@@ -1,13 +1,29 @@
 # tlapser360
 Used to shoot time lapse 360 photos with cameras that support the Open Spherical Camera API.
 
-This is a proof of concept script I wrote to run on  a raspberry pi with a Ricoh Theta S camera. I initially wrote this as an attempt to get my Theta S camera to shoot stills faster than using the built in intervalometer. In testing I was able to shave about 2 seconds from the shooting time, This however only seems to work using WIFI and not the USB. It also supports geotaging with gpsd and camera metering via an adafruit LUX meter. Metering features are still a work in progress and require a familiarity with the Raspberry pi GPIO interface. With metering enabled you can force the exposure to ramp in a single direction, this is useful for things like sunrise and sunset. Communication with the camera can be done with via wifi or usb. USB features are new and with the rest of the script are experimental, I've had problems with my camera becoming un-responsive and needing power cycling. If you do not need the GPS or metered exposure settings of this script and only want the ability to capture, download, and delete images from the camera you may want to look at using ptpcam alone 'ptpcam --loop-capture=5 --interval=3'.
+
+This is a proof of concept script I originally wrote to run on a raspberry pi with a Ricoh Theta S camera. It has since ben updated to support the Theta V. This was an attempt to get my Theta S camera to shoot stills faster than using the built in intervalometer. In testing I was able to shave about 2 seconds from the shooting time, This however only seems to work using WIFI and not the USB. It also supports geotaging with gpsd and camera metering via an adafruit LUX meter. Metering features are still a work in progress and require a familiarity with the Raspberry pi GPIO interface. With metering enabled you can force the exposure to ramp in a single direction, this is useful for things like sunrise and sunsets. USB features were experimental and I will no longer be adding to them. If you only need to capture, download, and delete images from the camera you may want to look at using ptpcam alone 'ptpcam --loop-capture=5 --interval=3' for USB.
 
 
 Early test fotage can be found here: https://www.youtube.com/watch?v=IugTnvYjy6A
 
 Use at your own risk!
 
+### Docker support:
+Docker is not required to use this script. The Docker file has been included to simplify things. Use the following commands to build and run the script in doker. Note when saving files you must specify a volume to mount into the container and the -O option will be relative to the path in the container.
+
+## Docker build
+```
+$ sudo docker build -t alpine_tlapser360 .
+```
+## Print help
+```
+$ sudo docker run -v /reflection_pool/tmp/humboldt/tlapser360_061618_test001:/mnt alpine_tlapser360 -h
+```
+## Take pictures with camera in client mode
+```
+$ sudo docker run -v /tmp/tlapser360_test001:/mnt alpine_tlapser360 -H 192.168.1.100 -I 5 -C 10 -m 2 -W y -r l -a "THETAYL00SERIALNUM:password" -O /mnt
+```
 
 ### Prereqs: 
 
@@ -28,6 +44,8 @@ Use at your own risk!
 
 - -H Camera hostname or IP address (defaults to 192.168.1.1)
 - -p Camera port (defaults to 80)
+- -a Authentication string for client mode "THETAYL<serial number>:<s/n or password>". NOTE: this is not secure!
+- -l Legacy support, if added this script should work with a Theta S which defaults to api v2. Read here https://developers.theta360.com/en/docs/v2.1/api_reference/getting_started.html#set_api_version
 - -I (Interval seconds) : This sets the sleep interval time between photos. Be aware this does not take into consideration any latency added by features of this script such as image downloads, usb control, gps metat data injection, ilong exposures, etc. This means if you set a 10 second interval your photos may be taken every 12 seconds. You can also set this to a lower threshold than the Ricoh Theta S can shoot using it's built in intervalometer. In testing I've been able to shoot a photo ever 3 seconds in low resolution and 5 seconds in high res without over running the on cammera buffer. 
 - -U (y/n) default n. Usb mode for Ricoh Theta S. This will control the camera over usb and requires libptp and gphoto2.
 - -W (y/n) Default y Wifi mode unless USB mode is enabled. Control the camera using the direct wifi connection and Opens Spherical camera API.
